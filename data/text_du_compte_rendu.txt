@@ -1,0 +1,88 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{float}
+\title{Fix oscillations in binomial tree engines Quantlib}
+\date{February 2017}
+\usepackage{natbib}
+\usepackage{graphicx}
+\usepackage{geometry}
+\geometry{
+ a4paper,
+ total={170mm,257mm},
+ left=20mm,
+ top=20mm,
+ }
+ 
+\begin{document}
+
+
+
+\maketitle
+
+\section{Introduction}
+Options prices calculates on trees with different time steps oscillate
+between two values depending on whether the number of time steps is even or odd. Among
+others, Chung and Shackleton argue that this can be helped by settings the option values
+at the penultimate nodes (i.e., those at the last time before maturity) to the analytic Black-
+Scholes  values  for  a  European  option.   This  is  acceptable  because  on  the  tree  there’s  no
+exercise between the penultimate nodes and the last nodes (i.e., those at maturity). Our goal is to implement 
+a solution that will fix those oscillations through the time steps
+so the BinomialVanillaEngine class will be modify to  implement this pricing scheme.The Cox Ross Rubinstein
+tree will be used for test and validation during the implementation .
+
+\begin{figure}[h!]
+\centering
+\includegraphics[scale=0.5]{lattice.png}
+\caption{Quantlib Lattice data structure}
+\label{Quantlib Lattice data structure  }
+\end{figure}
+
+\section {Problem overview }
+
+In this section we are going to implement a simple solution that shows the option price that oscillate. To achieve our goal we provide the class diagram that explains the implementation. Note that some upper class (Observer , Observerable , StochasticProcess ....) are not shown to simplify the diagram and have a clear vision.  
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{diagram.png}
+\caption{Implementation structure }
+\label{implementation structure  }
+\end{figure}
+
+
+The result of the option  price with the different time steps is represented on the graphic below. For the simulation we've used  as parameters the strike $K = 110$ , the underlying price $S_0 = 100$ , settlement date (01,March, 2017) the maturity date (27, February, 2018) the risk free Rate $r= 0.03$ the volatility $v=0.2$ the dividend yield rate $q=0$.We have used the Cox Ross Rubinstein tree for the implementation.  The result of the implementation is analyzed between 20 to 300 time steps show that the price oscillates around the mean price $ 3.319$. 
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.5]{Option_price.png}
+\caption{option price per time step }
+\label{price per time step }
+\end{figure}
+
+Now we have the proof that the price oscillate between 2 values we are going to implement a solution that fix those oscillations.
+
+
+\section {Optimized solution}
+In this section we will set up the optimized solution that fix the oscillations in the BinomialEngine class .To achieve this Goal we have redefine a new lattice class OptimizedLattice that will fix the issue.As suggested previously in the introduction  the penultimate nodes will be replaced with the blackscholes Option price. The implementation diagram is below.    
+
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.45]{oscillation_Fixed.png}
+\caption{Optimized structure }
+\label{Optuimized structure }
+\end{figure}
+
+
+The results of the simulation are plotted on the graphic below  : \\ 
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.55]{comparaison.png}
+\caption{Comparaison between Binomial tree and the Binomial Black Scholes  }
+\label{Graph  }
+\end{figure}
+\section{Conclusion}
+
+\bibliographystyle{plain}
+\bibliography{references}
+\end{document}
